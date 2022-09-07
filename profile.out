@@ -1,0 +1,573 @@
+Total: 256 samples
+     143  55.9%  55.9%      256 100.0% thread_worker
+      29  11.3%  67.2%       29  11.3% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+      22   8.6%  75.8%       63  24.6% SortedList_insert
+      13   5.1%  80.9%       13   5.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+      12   4.7%  85.5%       48  18.8% SortedList_lookup
+       9   3.5%  89.1%        9   3.5% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       5   2.0%  91.0%        5   2.0% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:165
+       4   1.6%  92.6%        4   1.6% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:161
+       4   1.6%  94.1%        4   1.6% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:204
+       4   1.6%  95.7%        4   1.6% _init
+       3   1.2%  96.9%        3   1.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:212
+       2   0.8%  97.7%        2   0.8% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:206
+       2   0.8%  98.4%        2   0.8% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:211
+       1   0.4%  98.8%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:205
+       1   0.4%  99.2%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       1   0.4%  99.6%        1   0.4% 0x00007ffc537f58e5
+       1   0.4% 100.0%        1   0.4% SortedList_length
+       0   0.0% 100.0%      256 100.0% ?? /usr/src/debug////////glibc-2.17-c758a686/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:118
+       0   0.0% 100.0%        1   0.4% __GI___clock_gettime
+       0   0.0% 100.0%      256 100.0% start_thread
+ROUTINE ====================== thread_worker in /u/eng/class/classoxu/2b/lab2_list.c
+   143    256 Total samples (flat / cumulative)
+     .      .   61: 
+     .      .   62: unsigned int hash(const char* x){
+     .      .   63:   return(x[0] % lists);
+     .      .   64: }
+     .      .   65: 
+---
+     .      .   66: void* thread_worker(void *addd){
+     .      .   67:   //inserts its elements
+     .      .   68:   struct timespec start;
+     .      .   69:   struct timespec end;
+     .      .   70:   int index = *((int*) addd);
+     .      .   71:   int i = index * iterations;//extract i from addd, then convert to real offset
+     .      .   72:   for (int j = 0; j < iterations; j++)
+     .      .   73:     {
+     .      .   74:       int hash_index = hash(stuffz[j+i].key);
+     .      .   75:       switch(syncc)
+     .      .   76: 	{
+     .      .   77: 	case 'n':
+     .      .   78: 	  SortedList_insert(&bigboi[hash_index], &stuffz[j+i]);
+     .      .   79: 	  break;
+     .      .   80: 	case 'm':
+     .      .   81: 	  if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .   82: 	    {
+     .      .   83: 	      fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .   84: 	      exit(1);
+     .      .   85: 	    }
+     .      .   86: 	  if (pthread_mutex_lock(&lock[hash_index]) != 0)
+     .      .   87:             {
+     .      .   88:               fprintf(stderr, "Error occurred while locking: %s", strerror(errno));
+     .      .   89:               exit(1);
+     .      .   90:             }
+     .      .   91: 	  if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .   92: 	    {
+     .      .   93: 	      fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .   94: 	      exit(1);
+     .      .   95: 	    }
+     .      .   96: 	  waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .   97: 	  SortedList_insert(&bigboi[hash_index], &stuffz[j+i]);
+     .      .   98:           if (pthread_mutex_unlock(&lock[hash_index]) != 0)
+     .      .   99:             {
+     .      .  100:               fprintf(stderr, "Error occurred while unlocking: %s", strerror(errno));
+     .      .  101:               exit(1);
+     .      .  102:             }
+     .      .  103:           break;
+     .      .  104: 	case 's':
+     .      .  105: 	  if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  106:             {
+     .      .  107:               fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  108:               exit(1);
+     .      .  109:             }
+   101    101  110: 	   while(__sync_lock_test_and_set(&spinlock[hash_index], 1))
+     .      .  111:             {
+     .      .  112:               //do nothing
+     .      .  113:             }
+     .      1  114: 	   if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  115:             {
+     .      .  116:               fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  117:               exit(1);
+     .      .  118:             }
+     .      .  119: 	   waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .     63  120: 	   SortedList_insert(&bigboi[hash_index], &stuffz[j+i]);
+     .      .  121:           __sync_lock_release(&spinlock[hash_index]);
+     .      .  122:           break;
+     .      .  123: 	default:
+     .      .  124: 	  fprintf(stderr, "Shouldn't even be possible to get here");
+     .      .  125:           exit(1);
+     .      .  126:           break;
+     .      .  127: 	}
+     .      .  128:     }
+     .      .  129:   //get list length
+     .      .  130:   switch(syncc)
+     .      .  131:     {
+     .      .  132:     case 'n':
+     .      .  133:       for (int i = 0; i<lists; i++)
+     .      .  134: 	{
+     .      .  135: 	  if (SortedList_length(&bigboi[i]) < 0)
+     .      .  136: 	    {
+     .      .  137: 	      fprintf(stderr, "Corrupted list! Invalid length");
+     .      .  138: 	      exit(2);
+     .      .  139: 	    }
+     .      .  140: 	}
+     .      .  141:       break;
+     .      .  142:     case 'm':
+     .      .  143:       if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  144: 	{
+     .      .  145: 	  fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  146: 	  exit(1);
+     .      .  147: 	}
+     .      .  148:       for (int i=0; i<lists; i++)
+     .      .  149: 	{
+     .      .  150: 	 
+     .      .  151: 	  if (pthread_mutex_lock(&lock[i]) != 0)
+     .      .  152: 	    {
+     .      .  153: 	      fprintf(stderr, "Error occurred while locking: %s", strerror(errno));
+     .      .  154: 	      exit(1);
+     .      .  155: 	    }
+     .      .  156: 	}
+     .      .  157:       
+     .      .  158:       if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  159:         {
+     .      .  160:           fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  161:           exit(1);
+     .      .  162:         }
+     .      .  163:       waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  164:       
+     .      .  165:       for (int i=0; i<lists; i++)
+     .      .  166: 	{
+     .      .  167: 	  if (SortedList_length(&bigboi[i]) < 0)
+     .      .  168: 	    {
+     .      .  169: 	      fprintf(stderr, "Corrupted sublist %d! Invalid length", i);
+     .      .  170: 	      exit(2);
+     .      .  171: 	    }
+     .      .  172: 	}
+     .      .  173:       for (int i=0; i< lists; i++)
+     .      .  174: 	{
+     .      .  175: 	  if (pthread_mutex_unlock(&lock[i]) != 0)
+     .      .  176: 	    {
+     .      .  177: 	      fprintf(stderr, "Error occurred while unlocking: %s", strerror(errno));
+     .      .  178: 	      exit(1);
+     .      .  179: 	    }
+     .      .  180: 	}
+     .      .  181:       break;
+     .      .  182:     case 's':
+     .      .  183:       if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  184: 	{
+     .      .  185: 	  fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  186: 	  exit(1);
+     .      .  187: 	}
+     .      .  188: 
+     .      .  189:       for (int i = 0; i<lists; i++)
+     .      .  190: 	{
+     .      .  191: 	  while(__sync_lock_test_and_set(&spinlock[i], 1))
+     .      .  192: 	    {
+     .      .  193: 	      //do nothing
+     .      .  194: 	    }
+     .      .  195: 	}
+     .      .  196:             
+     .      .  197:       if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  198:         {
+     .      .  199:           fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  200:           exit(1);
+     .      .  201:         }
+     .      .  202:       waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  203:       
+     .      .  204:       for (int i = 0; i < lists; i++)
+     .      .  205: 	{
+     .      1  206: 	  if (SortedList_length(&bigboi[i]) < 0)
+     .      .  207: 	    {
+     .      .  208: 	      fprintf(stderr, "Corrupted sublist %d! Invalid length", i);
+     .      .  209: 	      exit(2);
+     .      .  210: 	    }
+     .      .  211: 	}
+     .      .  212:       for (int i = 0; i < lists; i++)
+     .      .  213: 	{
+     .      .  214: 	  __sync_lock_release(&spinlock[i]);
+     .      .  215: 	}
+     .      .  216:       break;
+     .      .  217:     default:
+     .      .  218:       fprintf(stderr, "Shouldn't even be possible to get here");
+     .      .  219:       exit(1);
+     .      .  220:       break;
+     .      .  221:     }
+     .      .  222: 
+     .      .  223:   //delete its elements
+     .      .  224:   for (int j = 0; j < iterations; j++)
+     .      .  225:     {//want to make sure we're deleting the element tmp we look up, so keep both fxs in same lock
+     .      .  226:       int hash_index = hash(stuffz[j+i].key);
+     .      .  227:       switch(syncc)
+     .      .  228: 	{
+     .      .  229: 	case 'n':
+     .      .  230: 	  {
+     .      .  231: 	  SortedListElement_t* tmp = SortedList_lookup(&bigboi[hash_index], stuffz[i+j].key); 
+     .      .  232: 	  if (tmp == NULL)
+     .      .  233: 	    {
+     .      .  234: 	      fprintf(stderr, "Corrupted list! Invalid lookup");
+     .      .  235: 	      exit(2);
+     .      .  236: 	    }
+     .      .  237: 	  //if no sync argument
+     .      .  238: 	  if (SortedList_delete(tmp) == 1)
+     .      .  239: 	    {
+     .      .  240: 	      fprintf(stderr, "Corrupted list! Invalid delete");
+     .      .  241: 	      exit(2);
+     .      .  242: 	    }
+     .      .  243: 	  break;
+     .      .  244: 	  }
+     .      .  245: 	case 'm':
+     .      .  246: 	  {
+     .      .  247: 	    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  248: 	      {
+     .      .  249: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  250: 		exit(1);
+     .      .  251: 	      }
+     .      .  252: 	    
+     .      .  253: 	    if (pthread_mutex_lock(&lock[hash_index]) != 0)
+     .      .  254: 	      {
+     .      .  255: 		fprintf(stderr, "Error occurred while locking: %s", strerror(errno));
+     .      .  256: 		exit(1);
+     .      .  257: 	      }
+     .      .  258: 	    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  259: 	      {
+     .      .  260: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  261: 		exit(1);
+     .      .  262: 	      }
+     .      .  263: 	    waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  264: 
+     .      .  265: 
+     .      .  266: 	    SortedListElement_t* tmp = SortedList_lookup(&bigboi[hash_index], stuffz[i+j].key);
+     .      .  267: 	    if (tmp == NULL)
+     .      .  268: 	      {
+     .      .  269: 		fprintf(stderr, "Corrupted list! Invalid lookup");
+     .      .  270: 		exit(2);
+     .      .  271: 	      }
+     .      .  272: 	    //if no sync argument
+     .      .  273: 	    if (SortedList_delete(tmp) == 1)
+     .      .  274: 	      {
+     .      .  275: 		fprintf(stderr, "Corrupted list! Invalid delete");
+     .      .  276: 		exit(2);
+     .      .  277: 	      }
+     .      .  278: 	    if (pthread_mutex_unlock(&lock[hash_index]) != 0)
+     .      .  279: 	      {
+     .      .  280: 		fprintf(stderr, "Error occurred while unlocking: %s", strerror(errno));
+     .      .  281: 		exit(1);
+     .      .  282: 	      }
+     .      .  283: 	    break;
+     .      .  284: 	  }
+     .      .  285: 	case 's':
+     .      .  286: 	  {
+     .      .  287: 	    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  288: 	      {
+     .      .  289: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  290: 		exit(1);
+     .      .  291: 	      }
+    42     42  292: 	    while(__sync_lock_test_and_set(&spinlock[hash_index], 1))
+     .      .  293: 	      {
+     .      .  294: 		//do nothing
+     .      .  295: 	      }
+     .      .  296: 	    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  297: 	      {
+     .      .  298: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  299: 		exit(1);
+     .      .  300: 	      }
+     .      .  301: 	    waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  302: 
+     .      .  303: 
+     .     48  304: 	    SortedListElement_t* tmp = SortedList_lookup(&bigboi[hash_index], stuffz[i+j].key);
+     .      .  305: 	    if (tmp == NULL)
+     .      .  306: 	      {
+     .      .  307: 		fprintf(stderr, "Corrupted list! Invalid lookup");
+     .      .  308: 		exit(2);
+     .      .  309: 	      }
+     .      .  310:           //if no sync argument
+     .      .  311: 	    if (SortedList_delete(tmp) == 1)
+     .      .  312: 	      {
+     .      .  313: 		fprintf(stderr, "Corrupted list! Invalid delete");
+     .      .  314: 		exit(2);
+     .      .  315: 	      }
+     .      .  316: 	    __sync_lock_release(&spinlock[hash_index]);
+     .      .  317: 	    break;
+     .      .  318: 	  }
+     .      .  319: 	default:
+     .      .  320: 	  fprintf(stderr, "should not be possible to get here");
+     .      .  321: 	  exit(1);
+     .      .  322: 	  break;
+     .      .  323: 	  
+     .      .  324: 	}
+     .      .  325:     }
+     .      .  326:   return 0;
+     .      .  327: }
+---
+     .      .  328: 
+     .      .  329: int main(int argc, char **argv) {
+     .      .  330:   signal(SIGSEGV, handler);
+     .      .  331:   lists=1;
+     .      .  332:   opt_yield = 0;
+ROUTINE ====================== thread_worker in /u/eng/class/classoxu/2b/lab2_list.c
+   143    256 Total samples (flat / cumulative)
+     .      .   61: 
+     .      .   62: unsigned int hash(const char* x){
+     .      .   63:   return(x[0] % lists);
+     .      .   64: }
+     .      .   65: 
+---
+     .      .   66: void* thread_worker(void *addd){
+     .      .   67:   //inserts its elements
+     .      .   68:   struct timespec start;
+     .      .   69:   struct timespec end;
+     .      .   70:   int index = *((int*) addd);
+     .      .   71:   int i = index * iterations;//extract i from addd, then convert to real offset
+     .      .   72:   for (int j = 0; j < iterations; j++)
+     .      .   73:     {
+     .      .   74:       int hash_index = hash(stuffz[j+i].key);
+     .      .   75:       switch(syncc)
+     .      .   76: 	{
+     .      .   77: 	case 'n':
+     .      .   78: 	  SortedList_insert(&bigboi[hash_index], &stuffz[j+i]);
+     .      .   79: 	  break;
+     .      .   80: 	case 'm':
+     .      .   81: 	  if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .   82: 	    {
+     .      .   83: 	      fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .   84: 	      exit(1);
+     .      .   85: 	    }
+     .      .   86: 	  if (pthread_mutex_lock(&lock[hash_index]) != 0)
+     .      .   87:             {
+     .      .   88:               fprintf(stderr, "Error occurred while locking: %s", strerror(errno));
+     .      .   89:               exit(1);
+     .      .   90:             }
+     .      .   91: 	  if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .   92: 	    {
+     .      .   93: 	      fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .   94: 	      exit(1);
+     .      .   95: 	    }
+     .      .   96: 	  waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .   97: 	  SortedList_insert(&bigboi[hash_index], &stuffz[j+i]);
+     .      .   98:           if (pthread_mutex_unlock(&lock[hash_index]) != 0)
+     .      .   99:             {
+     .      .  100:               fprintf(stderr, "Error occurred while unlocking: %s", strerror(errno));
+     .      .  101:               exit(1);
+     .      .  102:             }
+     .      .  103:           break;
+     .      .  104: 	case 's':
+     .      .  105: 	  if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  106:             {
+     .      .  107:               fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  108:               exit(1);
+     .      .  109:             }
+   101    101  110: 	   while(__sync_lock_test_and_set(&spinlock[hash_index], 1))
+     .      .  111:             {
+     .      .  112:               //do nothing
+     .      .  113:             }
+     .      1  114: 	   if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  115:             {
+     .      .  116:               fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  117:               exit(1);
+     .      .  118:             }
+     .      .  119: 	   waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .     63  120: 	   SortedList_insert(&bigboi[hash_index], &stuffz[j+i]);
+     .      .  121:           __sync_lock_release(&spinlock[hash_index]);
+     .      .  122:           break;
+     .      .  123: 	default:
+     .      .  124: 	  fprintf(stderr, "Shouldn't even be possible to get here");
+     .      .  125:           exit(1);
+     .      .  126:           break;
+     .      .  127: 	}
+     .      .  128:     }
+     .      .  129:   //get list length
+     .      .  130:   switch(syncc)
+     .      .  131:     {
+     .      .  132:     case 'n':
+     .      .  133:       for (int i = 0; i<lists; i++)
+     .      .  134: 	{
+     .      .  135: 	  if (SortedList_length(&bigboi[i]) < 0)
+     .      .  136: 	    {
+     .      .  137: 	      fprintf(stderr, "Corrupted list! Invalid length");
+     .      .  138: 	      exit(2);
+     .      .  139: 	    }
+     .      .  140: 	}
+     .      .  141:       break;
+     .      .  142:     case 'm':
+     .      .  143:       if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  144: 	{
+     .      .  145: 	  fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  146: 	  exit(1);
+     .      .  147: 	}
+     .      .  148:       for (int i=0; i<lists; i++)
+     .      .  149: 	{
+     .      .  150: 	 
+     .      .  151: 	  if (pthread_mutex_lock(&lock[i]) != 0)
+     .      .  152: 	    {
+     .      .  153: 	      fprintf(stderr, "Error occurred while locking: %s", strerror(errno));
+     .      .  154: 	      exit(1);
+     .      .  155: 	    }
+     .      .  156: 	}
+     .      .  157:       
+     .      .  158:       if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  159:         {
+     .      .  160:           fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  161:           exit(1);
+     .      .  162:         }
+     .      .  163:       waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  164:       
+     .      .  165:       for (int i=0; i<lists; i++)
+     .      .  166: 	{
+     .      .  167: 	  if (SortedList_length(&bigboi[i]) < 0)
+     .      .  168: 	    {
+     .      .  169: 	      fprintf(stderr, "Corrupted sublist %d! Invalid length", i);
+     .      .  170: 	      exit(2);
+     .      .  171: 	    }
+     .      .  172: 	}
+     .      .  173:       for (int i=0; i< lists; i++)
+     .      .  174: 	{
+     .      .  175: 	  if (pthread_mutex_unlock(&lock[i]) != 0)
+     .      .  176: 	    {
+     .      .  177: 	      fprintf(stderr, "Error occurred while unlocking: %s", strerror(errno));
+     .      .  178: 	      exit(1);
+     .      .  179: 	    }
+     .      .  180: 	}
+     .      .  181:       break;
+     .      .  182:     case 's':
+     .      .  183:       if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  184: 	{
+     .      .  185: 	  fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  186: 	  exit(1);
+     .      .  187: 	}
+     .      .  188: 
+     .      .  189:       for (int i = 0; i<lists; i++)
+     .      .  190: 	{
+     .      .  191: 	  while(__sync_lock_test_and_set(&spinlock[i], 1))
+     .      .  192: 	    {
+     .      .  193: 	      //do nothing
+     .      .  194: 	    }
+     .      .  195: 	}
+     .      .  196:             
+     .      .  197:       if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  198:         {
+     .      .  199:           fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  200:           exit(1);
+     .      .  201:         }
+     .      .  202:       waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  203:       
+     .      .  204:       for (int i = 0; i < lists; i++)
+     .      .  205: 	{
+     .      1  206: 	  if (SortedList_length(&bigboi[i]) < 0)
+     .      .  207: 	    {
+     .      .  208: 	      fprintf(stderr, "Corrupted sublist %d! Invalid length", i);
+     .      .  209: 	      exit(2);
+     .      .  210: 	    }
+     .      .  211: 	}
+     .      .  212:       for (int i = 0; i < lists; i++)
+     .      .  213: 	{
+     .      .  214: 	  __sync_lock_release(&spinlock[i]);
+     .      .  215: 	}
+     .      .  216:       break;
+     .      .  217:     default:
+     .      .  218:       fprintf(stderr, "Shouldn't even be possible to get here");
+     .      .  219:       exit(1);
+     .      .  220:       break;
+     .      .  221:     }
+     .      .  222: 
+     .      .  223:   //delete its elements
+     .      .  224:   for (int j = 0; j < iterations; j++)
+     .      .  225:     {//want to make sure we're deleting the element tmp we look up, so keep both fxs in same lock
+     .      .  226:       int hash_index = hash(stuffz[j+i].key);
+     .      .  227:       switch(syncc)
+     .      .  228: 	{
+     .      .  229: 	case 'n':
+     .      .  230: 	  {
+     .      .  231: 	  SortedListElement_t* tmp = SortedList_lookup(&bigboi[hash_index], stuffz[i+j].key); 
+     .      .  232: 	  if (tmp == NULL)
+     .      .  233: 	    {
+     .      .  234: 	      fprintf(stderr, "Corrupted list! Invalid lookup");
+     .      .  235: 	      exit(2);
+     .      .  236: 	    }
+     .      .  237: 	  //if no sync argument
+     .      .  238: 	  if (SortedList_delete(tmp) == 1)
+     .      .  239: 	    {
+     .      .  240: 	      fprintf(stderr, "Corrupted list! Invalid delete");
+     .      .  241: 	      exit(2);
+     .      .  242: 	    }
+     .      .  243: 	  break;
+     .      .  244: 	  }
+     .      .  245: 	case 'm':
+     .      .  246: 	  {
+     .      .  247: 	    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  248: 	      {
+     .      .  249: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  250: 		exit(1);
+     .      .  251: 	      }
+     .      .  252: 	    
+     .      .  253: 	    if (pthread_mutex_lock(&lock[hash_index]) != 0)
+     .      .  254: 	      {
+     .      .  255: 		fprintf(stderr, "Error occurred while locking: %s", strerror(errno));
+     .      .  256: 		exit(1);
+     .      .  257: 	      }
+     .      .  258: 	    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  259: 	      {
+     .      .  260: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  261: 		exit(1);
+     .      .  262: 	      }
+     .      .  263: 	    waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  264: 
+     .      .  265: 
+     .      .  266: 	    SortedListElement_t* tmp = SortedList_lookup(&bigboi[hash_index], stuffz[i+j].key);
+     .      .  267: 	    if (tmp == NULL)
+     .      .  268: 	      {
+     .      .  269: 		fprintf(stderr, "Corrupted list! Invalid lookup");
+     .      .  270: 		exit(2);
+     .      .  271: 	      }
+     .      .  272: 	    //if no sync argument
+     .      .  273: 	    if (SortedList_delete(tmp) == 1)
+     .      .  274: 	      {
+     .      .  275: 		fprintf(stderr, "Corrupted list! Invalid delete");
+     .      .  276: 		exit(2);
+     .      .  277: 	      }
+     .      .  278: 	    if (pthread_mutex_unlock(&lock[hash_index]) != 0)
+     .      .  279: 	      {
+     .      .  280: 		fprintf(stderr, "Error occurred while unlocking: %s", strerror(errno));
+     .      .  281: 		exit(1);
+     .      .  282: 	      }
+     .      .  283: 	    break;
+     .      .  284: 	  }
+     .      .  285: 	case 's':
+     .      .  286: 	  {
+     .      .  287: 	    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+     .      .  288: 	      {
+     .      .  289: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  290: 		exit(1);
+     .      .  291: 	      }
+    42     42  292: 	    while(__sync_lock_test_and_set(&spinlock[hash_index], 1))
+     .      .  293: 	      {
+     .      .  294: 		//do nothing
+     .      .  295: 	      }
+     .      .  296: 	    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+     .      .  297: 	      {
+     .      .  298: 		fprintf(stderr, "Error occured while getting clocktime: %s", strerror(errno));
+     .      .  299: 		exit(1);
+     .      .  300: 	      }
+     .      .  301: 	    waiter[index] += (((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec);
+     .      .  302: 
+     .      .  303: 
+     .     48  304: 	    SortedListElement_t* tmp = SortedList_lookup(&bigboi[hash_index], stuffz[i+j].key);
+     .      .  305: 	    if (tmp == NULL)
+     .      .  306: 	      {
+     .      .  307: 		fprintf(stderr, "Corrupted list! Invalid lookup");
+     .      .  308: 		exit(2);
+     .      .  309: 	      }
+     .      .  310:           //if no sync argument
+     .      .  311: 	    if (SortedList_delete(tmp) == 1)
+     .      .  312: 	      {
+     .      .  313: 		fprintf(stderr, "Corrupted list! Invalid delete");
+     .      .  314: 		exit(2);
+     .      .  315: 	      }
+     .      .  316: 	    __sync_lock_release(&spinlock[hash_index]);
+     .      .  317: 	    break;
+     .      .  318: 	  }
+     .      .  319: 	default:
+     .      .  320: 	  fprintf(stderr, "should not be possible to get here");
+     .      .  321: 	  exit(1);
+     .      .  322: 	  break;
+     .      .  323: 	  
+     .      .  324: 	}
+     .      .  325:     }
+     .      .  326:   return 0;
+     .      .  327: }
+---
+     .      .  328: 
+     .      .  329: int main(int argc, char **argv) {
+     .      .  330:   signal(SIGSEGV, handler);
+     .      .  331:   lists=1;
+     .      .  332:   opt_yield = 0;

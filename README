@@ -1,0 +1,78 @@
+NAME: CAO XU
+EMAIL: cxcharlie@gmail.com
+ID: 704551688
+
+QUESTIONS AND ANSWERS:
+
+Question 2.3.1:
+a & b) In a very low number of threads i.e. 1 or 2, most of the time isn't spent waiting for locks as 
+there's very little waiting to be done. The time isn't spent in the actual locking/unlocking process
+either as they're relatively quick in themselves. Therefore, most of the time should be spent in the
+link list methods such as insert, length, lookup, and delete, especially because we have 1000 iterations
+we tested before this question.
+c) In high-thread spin-lock tests, the CPU time should mostly be spent spinning (which we expect as the 
+spinlocks in general waste more time with higher contention aka more threads).
+d) In high-thread mutexes, the CPU time should remain in the list operations. This is because mutexes
+will put threads to sleep if they don't acquire a lock soon, so they can't be using up all the CPU time
+just spinning around waiting for a lock.
+
+Question 2.3.2:
+       while(__sync_lock_test_and_set(&spinlock[hash_index], 1))
+
+Lines 110 and 292 both have the same code indicated above and are the two most expensive according to
+profile.out (which of course comes from google-pprof). This is expected because with a large number of
+threads, many of the threads will be stuck here spinning & wasting CPU while waiting for its turn
+to pass this spin-lock and enter the critical area.
+
+Question 2.3.3:
+a) Because there are simply more threads trying to use the same contested lock, the amount of time increases
+rapidly which is again what we expect!
+
+b) Completion time doesn't rise so dramatically because it also depends on the locking process. The time spent
+completing the operations themselves isn't affected by the number of threads directly, and thus there is an offset 
+to the overall factor of increase from the time spent actually executing and not just locking.
+
+c) The completion time does indeed account for the wait time of the whole operation, but the wait time is the 
+cumulative sum of each individual thread, which may together add up to more than the completion time (as 
+threads could be waiting at the same time!!)
+
+Question 2.3.4:
+a) More lists = higher throughput (as there's more locks and less resources being contended by a large number of threads).
+b) Yes, but probably to only a certain point. Eventually, there will be little to no contention for resources, and at that
+point increasing the lists would no longer see more productive results.
+c) No, it is not seen in the graph. This makes sense as a N times partioned list spends more time locking than a single list
+with 1/N threads (where N is a decently large positive integer).
+
+FILES:
+SortedList.h: A provided header file describing interfaces for linked list operations
+
+SortedList.c: The implementation of SortedList.h
+
+lab2_list.c: A C program that implements the program where we add elements to a shared list and delete that element,
+which normally would create an empty list at the end but we analyze how that is changed with variable amount of
+multithreading and the existence/lack of two synchronization methods. Now includes --lists option
+
+Makefile: A basic makefile which includes default (default option), tests, graphs, profile, dist, and clean as possible
+options
+
+
+lab2b_list.csv: contains results of the tests on lab2_list from the spec
+
+lab2b_1.png: picture of gnuplot result of throughput vs. number of threads for mutex and spin-lock synchronized list operations.
+
+lab2b_2.png:  mean time per mutex wait and mean time per operation for mutex-synchronized list operations.
+
+lab2b_3.png: picture of gnuplot result of successful iterations vs. threads for each synchronization method.
+
+lab2b_4.png: picture of gnuplot result of throughput vs. number of threads for mutex synchronized partitioned lists.
+
+lab2b_5.png: picture of above except for sync-lock lists
+
+README: this file answering the spec questions and listing all the files.
+
+lab2b.gp: My test file for graphing with gnuplot
+
+profile.out: the result of running make profile and seeing what is taking up sync-locks
+
+Research:
+	https://gperftools.github.io/gperftools/cpuprofile.html
